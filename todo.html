@@ -17,54 +17,52 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{width:100%;min-height:100vh;}
-body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);font-size:17px;}
 body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(circle,var(--dot) 1px,transparent 1px);background-size:20px 20px;}
 
-/* HEADER */
 header{
   position:sticky;top:0;z-index:100;
-  background:rgba(253,250,244,0.95);
+  background:rgba(253,250,244,0.96);
   backdrop-filter:blur(8px);
   border-bottom:1px solid var(--border);
-  padding:10px 16px;
+  padding:12px 20px;
   display:flex;align-items:center;justify-content:space-between;gap:12px;
 }
-.site-title{font-family:'Fraunces',serif;font-size:18px;font-weight:700;white-space:nowrap;}
-.header-right{display:flex;align-items:center;gap:12px;flex-shrink:0;}
-.global-progress{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);}
-.global-bar{width:100px;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
-@media(max-width:480px){.global-bar{width:60px;}}
+.site-title{font-family:'Fraunces',serif;font-size:20px;font-weight:700;white-space:nowrap;}
+.header-right{display:flex;align-items:center;gap:14px;flex-shrink:0;}
+.time-summary{
+  font-size:13px;color:var(--muted);
+  background:var(--paper);border:1px solid var(--border);
+  border-radius:20px;padding:5px 12px;white-space:nowrap;
+}
+.time-summary strong{color:var(--ink);font-weight:600;}
+.global-progress{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);}
+.global-bar{width:90px;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
 .global-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--teal),var(--blue));transition:width 0.4s;}
 .global-count{font-weight:600;color:var(--ink);white-space:nowrap;}
-.sync-dot{width:7px;height:7px;border-radius:50%;background:#ccc;flex-shrink:0;transition:background 0.3s;}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#ccc;flex-shrink:0;transition:background 0.3s;}
 .sync-dot.ok{background:var(--teal);}
 .sync-dot.err{background:var(--red);}
 .sync-dot.loading{background:#f0a500;animation:pulse 1s infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
 @keyframes spin{to{transform:rotate(360deg);}}
 
-/* NAV — tabs + reorder combined */
 .nav{
-  position:relative;z-index:1;
-  display:flex;gap:6px;
-  padding:10px 16px;
-  overflow-x:auto;
-  -webkit-overflow-scrolling:touch;
-  scrollbar-width:none;
-  flex-wrap:nowrap;
+  position:sticky;top:57px;z-index:99;
+  display:flex;gap:8px;
+  padding:10px 20px;
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;flex-wrap:nowrap;
   border-bottom:1px solid var(--border);
-  background:rgba(253,250,244,0.95);
+  background:rgba(253,250,244,0.96);
 }
 .nav::-webkit-scrollbar{display:none;}
-.nav-hint{font-size:10px;color:var(--muted);white-space:nowrap;align-self:center;margin-right:4px;flex-shrink:0;}
-
+.nav-hint{font-size:11px;color:var(--muted);white-space:nowrap;align-self:center;margin-right:2px;flex-shrink:0;}
 .tab-btn{
-  padding:7px 14px;border-radius:20px;
-  border:1.5px solid var(--border);
-  background:white;
-  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
-  cursor:grab;color:var(--muted);
-  white-space:nowrap;flex-shrink:0;
+  padding:8px 16px;border-radius:20px;
+  border:1.5px solid var(--border);background:white;
+  font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;
+  cursor:grab;color:var(--muted);white-space:nowrap;flex-shrink:0;
   transition:all 0.15s;user-select:none;
 }
 .tab-btn:hover{border-color:#bbb;color:var(--ink);}
@@ -76,55 +74,49 @@ header{
 .tab-btn.cat-dragging{opacity:0.4;}
 .tab-btn.cat-drag-over{border-style:dashed;border-color:#999;}
 
-/* MAIN */
-main{position:relative;z-index:1;padding:16px 16px 80px;width:100%;}
-
-.loading-screen{text-align:center;padding:60px 24px;color:var(--muted);font-size:15px;}
-.spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 14px;}
+main{position:relative;z-index:1;padding:20px 20px 100px;width:100%;}
+.loading-screen{text-align:center;padding:80px 24px;color:var(--muted);font-size:17px;}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px;}
 
 .section{display:none;}
 .section.active{display:block;}
-
-.section-header{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid;}
-.section-header .icon{font-size:22px;}
-.section-header h1{font-family:'Fraunces',serif;font-size:24px;font-weight:700;}
-@media(max-width:480px){.section-header h1{font-size:20px;}}
-.sec-count{margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap;}
-.sec-progress{height:4px;border-radius:3px;background:var(--border);margin-bottom:20px;overflow:hidden;}
+.section-header{display:flex;align-items:center;gap:12px;margin-bottom:18px;padding-bottom:14px;border-bottom:2px solid;}
+.section-header .icon{font-size:26px;}
+.section-header h1{font-family:'Fraunces',serif;font-size:28px;font-weight:700;}
+.sec-meta{margin-left:auto;text-align:right;}
+.sec-count{font-size:14px;color:var(--muted);display:block;}
+.sec-time{font-size:13px;color:var(--muted);display:block;}
+.sec-progress{height:5px;border-radius:3px;background:var(--border);margin-bottom:24px;overflow:hidden;}
 .sec-progress-fill{height:100%;border-radius:3px;transition:width 0.4s;}
 
-#sec-yard    .section-header{border-color:var(--teal);color:var(--teal-dark);}
-#sec-yard    .sec-progress-fill{background:var(--teal);}
-#sec-house   .section-header{border-color:var(--purple);color:var(--purple-dark);}
-#sec-house   .sec-progress-fill{background:var(--purple);}
-#sec-checkout .section-header{border-color:var(--pink);color:var(--pink-dark);}
-#sec-checkout .sec-progress-fill{background:var(--pink);}
-#sec-math    .section-header{border-color:var(--blue);color:var(--blue-dark);}
-#sec-math    .sec-progress-fill{background:var(--blue);}
-#sec-history .section-header{border-color:var(--red);color:var(--red-dark);}
-#sec-history .sec-progress-fill{background:var(--red);}
+#sec-yard    .section-header{border-color:var(--teal);color:var(--teal-dark);}   #sec-yard    .sec-progress-fill{background:var(--teal);}
+#sec-house   .section-header{border-color:var(--purple);color:var(--purple-dark);} #sec-house   .sec-progress-fill{background:var(--purple);}
+#sec-checkout .section-header{border-color:var(--pink);color:var(--pink-dark);}  #sec-checkout .sec-progress-fill{background:var(--pink);}
+#sec-math    .section-header{border-color:var(--blue);color:var(--blue-dark);}   #sec-math    .sec-progress-fill{background:var(--blue);}
+#sec-history .section-header{border-color:var(--red);color:var(--red-dark);}     #sec-history .sec-progress-fill{background:var(--red);}
 
-.group{margin-bottom:24px;}
-.group-label{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;padding-left:2px;}
-.task-list{display:flex;flex-direction:column;gap:4px;}
+.group{margin-bottom:28px;}
+.group-label{font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;padding-left:2px;}
+.task-list{display:flex;flex-direction:column;gap:5px;}
 
 .task{
-  display:flex;align-items:center;gap:10px;
-  padding:11px 12px;border-radius:10px;
+  display:flex;align-items:center;gap:12px;
+  padding:13px 14px;border-radius:12px;
   border:1px solid var(--border);background:white;
   cursor:grab;transition:box-shadow 0.15s,opacity 0.15s;
   user-select:none;
 }
-.task:hover{box-shadow:0 1px 4px rgba(0,0,0,0.07);}
+.task:hover{box-shadow:0 2px 6px rgba(0,0,0,0.07);}
 .task.dragging{opacity:0.3;}
 .task.drag-over{border-style:dashed;border-color:#aaa;background:#F5F5F0;}
 .task.done .task-label{text-decoration:line-through;color:var(--muted);}
+.task.done .time-badge{opacity:0.4;}
 
-.drag-handle{color:#CCC;font-size:16px;cursor:grab;flex-shrink:0;touch-action:none;}
+.drag-handle{color:#CCC;font-size:18px;cursor:grab;flex-shrink:0;}
 .drag-handle:hover{color:#999;}
 
 .cb{
-  width:22px;height:22px;border-radius:6px;border:1.5px solid;
+  width:24px;height:24px;border-radius:6px;border:1.5px solid;
   flex-shrink:0;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
   transition:all 0.15s;background:transparent;
@@ -137,32 +129,68 @@ main{position:relative;z-index:1;padding:16px 16px 80px;width:100%;}
 #sec-math    .cb{border-color:var(--blue);}   #sec-math    .cb.checked{background:var(--blue);border-color:var(--blue);}
 #sec-history .cb{border-color:var(--red);}    #sec-history .cb.checked{background:var(--red);border-color:var(--red);}
 
-.task-label{font-size:15px;flex:1;line-height:1.4;}
-@media(max-width:480px){.task-label{font-size:14px;}}
+.task-label{font-size:16px;flex:1;line-height:1.4;}
+
+/* TIME BADGE */
+.time-badge{
+  flex-shrink:0;cursor:pointer;
+  font-size:12px;font-weight:600;
+  padding:4px 9px;border-radius:20px;
+  border:1.5px solid var(--border);
+  background:var(--paper);color:var(--muted);
+  white-space:nowrap;transition:all 0.15s;
+  position:relative;
+}
+.time-badge:hover{border-color:#aaa;color:var(--ink);}
+.time-badge.has-time{border-color:currentColor;}
+#sec-yard    .time-badge.has-time{color:var(--teal-dark);background:var(--teal-bg);border-color:var(--teal);}
+#sec-house   .time-badge.has-time{color:var(--purple-dark);background:var(--purple-bg);border-color:var(--purple);}
+#sec-checkout .time-badge.has-time{color:var(--pink-dark);background:var(--pink-bg);border-color:var(--pink);}
+#sec-math    .time-badge.has-time{color:var(--blue-dark);background:var(--blue-bg);border-color:var(--blue);}
+#sec-history .time-badge.has-time{color:var(--red-dark);background:var(--red-bg);border-color:var(--red);}
+
+/* TIME PICKER DROPDOWN */
+.time-picker{
+  display:none;position:fixed;z-index:999;
+  background:white;border:1px solid var(--border);
+  border-radius:14px;padding:10px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.12);
+  display:none;flex-wrap:wrap;gap:6px;width:220px;
+}
+.time-picker.open{display:flex;}
+.tp-opt{
+  padding:7px 12px;border-radius:10px;
+  border:1px solid var(--border);background:white;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
+  cursor:pointer;color:var(--ink);transition:all 0.12s;
+}
+.tp-opt:hover{background:var(--paper);border-color:#aaa;}
+.tp-opt.selected{color:white;}
+.tp-clear{width:100%;text-align:center;padding:6px;border-radius:8px;border:1px dashed var(--border);font-size:12px;color:var(--muted);cursor:pointer;background:none;font-family:'DM Sans',sans-serif;}
+.tp-clear:hover{background:var(--paper);}
 
 .task-delete{
   opacity:0;background:none;border:none;cursor:pointer;
-  color:#CCC;font-size:16px;padding:3px 5px;border-radius:4px;
+  color:#CCC;font-size:17px;padding:3px 5px;border-radius:4px;
   transition:opacity 0.1s,color 0.1s;flex-shrink:0;
 }
 .task:hover .task-delete{opacity:1;}
 .task-delete:hover{color:#E24B4A;}
-@media(max-width:600px){.task-delete{opacity:0.4;}}
+@media(max-width:600px){.task-delete{opacity:0.35;}}
 
-.add-row{display:flex;gap:8px;margin-top:8px;}
+.add-row{display:flex;gap:8px;margin-top:10px;}
 .add-input{
-  flex:1;padding:10px 14px;border-radius:10px;
+  flex:1;padding:12px 16px;border-radius:12px;
   border:1.5px dashed var(--border);background:white;
-  font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);outline:none;
+  font-family:'DM Sans',sans-serif;font-size:16px;color:var(--ink);outline:none;
   transition:border-color 0.15s;min-width:0;
 }
 .add-input:focus{border-style:solid;border-color:#aaa;}
 .add-input::placeholder{color:#BDB9B0;}
 .add-btn{
-  padding:10px 16px;border-radius:10px;border:none;
-  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
-  cursor:pointer;color:white;white-space:nowrap;flex-shrink:0;
-  transition:opacity 0.15s;
+  padding:12px 18px;border-radius:12px;border:none;
+  font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;
+  cursor:pointer;color:white;white-space:nowrap;flex-shrink:0;transition:opacity 0.15s;
 }
 .add-btn:hover{opacity:0.85;}
 #sec-yard    .add-btn{background:var(--teal);}
@@ -170,6 +198,14 @@ main{position:relative;z-index:1;padding:16px 16px 80px;width:100%;}
 #sec-checkout .add-btn{background:var(--pink);}
 #sec-math    .add-btn{background:var(--blue);}
 #sec-history .add-btn{background:var(--red);}
+
+@media(max-width:480px){
+  .section-header h1{font-size:22px;}
+  .task{padding:12px 10px;gap:9px;}
+  .task-label{font-size:15px;}
+  header{padding:10px 14px;}
+  .time-summary{display:none;}
+}
 </style>
 </head>
 <body>
@@ -177,6 +213,7 @@ main{position:relative;z-index:1;padding:16px 16px 80px;width:100%;}
 <header>
   <div class="site-title">📋 To-Do</div>
   <div class="header-right">
+    <div class="time-summary" id="timeSummary">⏱ <strong id="timeRemain">0</strong> hrs remaining</div>
     <div class="sync-dot loading" id="syncDot"></div>
     <div class="global-progress">
       <div class="global-bar"><div class="global-bar-fill" id="globalFill" style="width:0%"></div></div>
@@ -186,12 +223,27 @@ main{position:relative;z-index:1;padding:16px 16px 80px;width:100%;}
 </header>
 
 <div class="nav" id="nav">
-  <span class="nav-hint">↔ drag to reorder</span>
+  <span class="nav-hint">↔ drag</span>
 </div>
 
 <main id="main">
   <div class="loading-screen"><div class="spinner"></div>Loading...</div>
 </main>
+
+<!-- floating time picker -->
+<div class="time-picker" id="timePicker">
+  <button class="tp-opt" data-mins="5">5 min</button>
+  <button class="tp-opt" data-mins="10">10 min</button>
+  <button class="tp-opt" data-mins="15">15 min</button>
+  <button class="tp-opt" data-mins="20">20 min</button>
+  <button class="tp-opt" data-mins="30">30 min</button>
+  <button class="tp-opt" data-mins="45">45 min</button>
+  <button class="tp-opt" data-mins="60">1 hr</button>
+  <button class="tp-opt" data-mins="90">1.5 hr</button>
+  <button class="tp-opt" data-mins="120">2 hr</button>
+  <button class="tp-opt" data-mins="180">3 hr</button>
+  <button class="tp-clear" id="tpClear">✕ clear</button>
+</div>
 
 <script>
 const SUPABASE_URL = 'https://jfbtarzerulndyvyjaok.supabase.co';
@@ -202,183 +254,257 @@ const ICONS  = {yard:'🌿',house:'🏠',checkout:'📦',math:'📐',history:'�
 const LABELS = {yard:'Yard Work',house:'House Work',checkout:'Moving Out & Checking Out',math:'Math (3rd)',history:'History (2nd & 6th)'};
 
 const DEFAULT_TASKS = [
-  {sec:'yard',grp:'Garden & Plants',text:'Get plantings + seeds',position:0},{sec:'yard',grp:'Garden & Plants',text:'Clear raised beds',position:1},{sec:'yard',grp:'Garden & Plants',text:'Plant weed',position:2},{sec:'yard',grp:'Garden & Plants',text:'Weed around enclosure',position:3},{sec:'yard',grp:'Garden & Plants',text:'Chop/dispose down tree',position:4},{sec:'yard',grp:'Garden & Plants',text:'Trim Willow bush',position:5},{sec:'yard',grp:'Garden & Plants',text:'Plant sunflowers',position:6},{sec:'yard',grp:'Garden & Plants',text:'Get tomato cage + pot',position:7},{sec:'yard',grp:'Garden & Plants',text:'Get pepper, flower seeds',position:8},{sec:'yard',grp:'Garden & Plants',text:'Trim side of deck plants',position:9},{sec:'yard',grp:'Garden & Plants',text:'Buy + install lights',position:10},{sec:'yard',grp:'Garden & Plants',text:'Buy bonus patio table/chairs',position:11},
-  {sec:'yard',grp:'Maintenance',text:'Fix hose situation',position:0},{sec:'yard',grp:'Maintenance',text:'Weed around smoke bush',position:1},{sec:'yard',grp:'Maintenance',text:'Weed garden by door',position:2},{sec:'yard',grp:'Maintenance',text:'Weed garden front of drive',position:3},{sec:'yard',grp:'Maintenance',text:'Weed living room garden',position:4},{sec:'yard',grp:'Maintenance',text:'Get outdoor plant shelf',position:5},{sec:'yard',grp:'Maintenance',text:'Get pooper scooper',position:6},{sec:'yard',grp:'Maintenance',text:'Rake/sweep area by cans',position:7},{sec:'yard',grp:'Maintenance',text:'Driveway repair kit',position:8},
-  {sec:'yard',grp:'Lawn & Outdoor',text:'Weedwack front + back',position:0},{sec:'yard',grp:'Lawn & Outdoor',text:'Mow + rake front + back',position:1},{sec:'yard',grp:'Lawn & Outdoor',text:'Fire wood + seating',position:2},
-  {sec:'house',grp:'Living Areas',text:'Vacuum/clean LV carpets',position:0},{sec:'house',grp:'Living Areas',text:'Mop LV floor + under couch',position:1},{sec:'house',grp:'Living Areas',text:'Clean couch covers',position:2},{sec:'house',grp:'Living Areas',text:'Clean + dust desk',position:3},{sec:'house',grp:'Living Areas',text:'Move + clean office rug',position:4},{sec:'house',grp:'Living Areas',text:'Set up office recycling',position:5},{sec:'house',grp:'Living Areas',text:'Clean + dust all surfaces',position:6},{sec:'house',grp:'Living Areas',text:'Clean under bed/shelves',position:7},{sec:'house',grp:'Living Areas',text:'Move + clean BeaR rug',position:8},{sec:'house',grp:'Living Areas',text:'Mop BeaR + office floor/hall',position:9},
-  {sec:'house',grp:'Kitchen & Bathrooms',text:'Deep clean truck stop BR',position:0},{sec:'house',grp:'Kitchen & Bathrooms',text:'Deep clean showers + walls',position:1},{sec:'house',grp:'Kitchen & Bathrooms',text:'Deep clean BR + mop',position:2},{sec:'house',grp:'Kitchen & Bathrooms',text:'Deep clean kitchen (oven, microwave, fridge, sink, counters, dishwasher)',position:3},{sec:'house',grp:'Kitchen & Bathrooms',text:'Clean dogs + crates + brush',position:4},
-  {sec:'house',grp:'Laundry & Linens',text:'Finish clothes laundry',position:0},{sec:'house',grp:'Laundry & Linens',text:'Finish sheets/towel laundry',position:1},{sec:'house',grp:'Laundry & Linens',text:'Clean storage room',position:2},
-  {sec:'house',grp:'Finishing Touches',text:'Improve towel holder',position:0},{sec:'house',grp:'Finishing Touches',text:'Replace front light',position:1},{sec:'house',grp:'Finishing Touches',text:'Paint kitchen ceiling',position:2},{sec:'house',grp:'Finishing Touches',text:'Wash windows',position:3},{sec:'house',grp:'Finishing Touches',text:'Re-org drawers + cabinets',position:4},
-  {sec:'house',grp:'Storage & Trash',text:'Get storage bins for basement',position:0},{sec:'house',grp:'Storage & Trash',text:'Throw away basement trash',position:1},{sec:'house',grp:'Storage & Trash',text:'Buy outdoor trash can + indoor recycle bin',position:2},
-  {sec:'checkout',grp:'Classroom Checkout',text:'Plants back home',position:0},{sec:'checkout',grp:'Classroom Checkout',text:'Store shirts',position:1},{sec:'checkout',grp:'Classroom Checkout',text:'Course perform',position:2},{sec:'checkout',grp:'Classroom Checkout',text:'Clear walls',position:3},{sec:'checkout',grp:'Classroom Checkout',text:'Return books + calcs',position:4},{sec:'checkout',grp:'Classroom Checkout',text:'Re-org drawers + cabinets',position:5},{sec:'checkout',grp:'Classroom Checkout',text:'Get poster store bag',position:6},{sec:'checkout',grp:'Classroom Checkout',text:'Recycle all prev class papers',position:7},{sec:'checkout',grp:'Classroom Checkout',text:'Offload NC ELD books/etc.',position:8},{sec:'checkout',grp:'Classroom Checkout',text:'Get locus for cabinets',position:9},
-  {sec:'checkout',grp:'Take Home',text:'Tea set',position:0},{sec:'checkout',grp:'Take Home',text:'Monitor',position:1},{sec:'checkout',grp:'Take Home',text:'Mice x2',position:2},{sec:'checkout',grp:'Take Home',text:'Keyboards x2',position:3},{sec:'checkout',grp:'Take Home',text:'Desktop',position:4},{sec:'checkout',grp:'Take Home',text:'Cords',position:5},{sec:'checkout',grp:'Take Home',text:'Big chair',position:6},{sec:'checkout',grp:'Take Home',text:'Desk cover',position:7},{sec:'checkout',grp:'Take Home',text:'Water heater',position:8},{sec:'checkout',grp:'Take Home',text:'Extension cords',position:9},{sec:'checkout',grp:'Take Home',text:'Chargers',position:10},{sec:'checkout',grp:'Take Home',text:'Box comics',position:11},{sec:'checkout',grp:'Take Home',text:'Games, A+C',position:12},
-  {sec:'checkout',grp:'Grades',text:'Finalize grades with comments',position:0},
-  {sec:'math',grp:'Grading',text:'Theor Prob Notes',position:0},{sec:'math',grp:'Grading',text:'Cond Prob Notes',position:1},{sec:'math',grp:'Grading',text:'Stats Proj Part 1',position:2},{sec:'math',grp:'Grading',text:'Probability HW',position:3},{sec:'math',grp:'Grading',text:'Norm Dist Notes',position:4},{sec:'math',grp:'Grading',text:'Prop Assess Prep',position:5},{sec:'math',grp:'Grading',text:'Stats Proj Part 2',position:6},{sec:'math',grp:'Grading',text:'Stats Proj Part 3',position:7},{sec:'math',grp:'Grading',text:'Enter study guide',position:8},{sec:'math',grp:'Grading',text:'Enter proj WP points',position:9},{sec:'math',grp:'Grading',text:'Enter exam',position:10},
-  {sec:'math',grp:'Prep',text:'Study guide',position:0},{sec:'math',grp:'Prep',text:'Review DN Qs (x4)',position:1},{sec:'math',grp:'Prep',text:'Review Kahoot PDF',position:2},{sec:'math',grp:'Prep',text:'Finalize review Kahoot',position:3},{sec:'math',grp:'Prep',text:'Practice exam form',position:4},{sec:'math',grp:'Prep',text:'Exam sched. slide',position:5},{sec:'math',grp:'Prep',text:'Final due date slide',position:6},{sec:'math',grp:'Prep',text:'Review WP points slide',position:7},{sec:'math',grp:'Prep',text:'Announce upd. grades',position:8},{sec:'math',grp:'Prep',text:'Email failing',position:9},
-  {sec:'history',grp:'Grading',text:'Enter unit 7 summ (2+6)',position:0},{sec:'history',grp:'Grading',text:'6.3/4 Study Guide (2+6)',position:1},{sec:'history',grp:'Grading',text:'Unit 6 Study Guide (2+6)',position:2},{sec:'history',grp:'Grading',text:'Unit 6 Tests (2+6)',position:3},{sec:'history',grp:'Grading',text:'7.1 Notes/Summ (2+6)',position:4},{sec:'history',grp:'Grading',text:'7.2 Notes/Summ (2+6)',position:5},{sec:'history',grp:'Grading',text:'Enter Study Guide (2+6)',position:6},{sec:'history',grp:'Grading',text:'Enter review activities',position:7},{sec:'history',grp:'Grading',text:'Enter review WP points',position:8},{sec:'history',grp:'Grading',text:'Enter exam',position:9},
-  {sec:'history',grp:'Prep',text:'Study guide #3',position:0},{sec:'history',grp:'Prep',text:'Review Kahoot PDF',position:1},{sec:'history',grp:'Prep',text:'Finalize review Kahoot',position:2},{sec:'history',grp:'Prep',text:'Exam sched. slide',position:3},{sec:'history',grp:'Prep',text:'Final due date slide',position:4},{sec:'history',grp:'Prep',text:'Review WP points slide',position:5},{sec:'history',grp:'Prep',text:'Work time slide',position:6},{sec:'history',grp:'Prep',text:'Finalize exam',position:7},{sec:'history',grp:'Prep',text:'Digital exam to Neidy',position:8},{sec:'history',grp:'Prep',text:'Email failing (2+6)',position:9},
+  {sec:'yard',grp:'Garden & Plants',text:'Get plantings + seeds',position:0,mins:null},{sec:'yard',grp:'Garden & Plants',text:'Clear raised beds',position:1,mins:null},{sec:'yard',grp:'Garden & Plants',text:'Plant weed',position:2,mins:null},{sec:'yard',grp:'Garden & Plants',text:'Weed around enclosure',position:3,mins:null},{sec:'yard',grp:'Garden & Plants',text:'Chop/dispose down tree',position:4,mins:null},{sec:'yard',grp:'Garden & Plants',text:'Trim Willow bush',position:5,mins:null},{sec:'yard',grp:'Garden & Plants',text:'Plant sunflowers',position:6,mins:null},{sec:'yard',grp:'Garden & Plants',text:'Get tomato cage + pot',position:7,mins:null},{sec:'yard',grp:'Garden & Plants',text:'Get pepper, flower seeds',position:8,mins:null},{sec:'yard',grp:'Garden & Plants',text:'Trim side of deck plants',position:9,mins:null},{sec:'yard',grp:'Garden & Plants',text:'Buy + install lights',position:10,mins:null},{sec:'yard',grp:'Garden & Plants',text:'Buy bonus patio table/chairs',position:11,mins:null},
+  {sec:'yard',grp:'Maintenance',text:'Fix hose situation',position:0,mins:null},{sec:'yard',grp:'Maintenance',text:'Weed around smoke bush',position:1,mins:null},{sec:'yard',grp:'Maintenance',text:'Weed garden by door',position:2,mins:null},{sec:'yard',grp:'Maintenance',text:'Weed garden front of drive',position:3,mins:null},{sec:'yard',grp:'Maintenance',text:'Weed living room garden',position:4,mins:null},{sec:'yard',grp:'Maintenance',text:'Get outdoor plant shelf',position:5,mins:null},{sec:'yard',grp:'Maintenance',text:'Get pooper scooper',position:6,mins:null},{sec:'yard',grp:'Maintenance',text:'Rake/sweep area by cans',position:7,mins:null},{sec:'yard',grp:'Maintenance',text:'Driveway repair kit',position:8,mins:null},
+  {sec:'yard',grp:'Lawn & Outdoor',text:'Weedwack front + back',position:0,mins:null},{sec:'yard',grp:'Lawn & Outdoor',text:'Mow + rake front + back',position:1,mins:null},{sec:'yard',grp:'Lawn & Outdoor',text:'Fire wood + seating',position:2,mins:null},
+  {sec:'house',grp:'Living Areas',text:'Vacuum/clean LV carpets',position:0,mins:null},{sec:'house',grp:'Living Areas',text:'Mop LV floor + under couch',position:1,mins:null},{sec:'house',grp:'Living Areas',text:'Clean couch covers',position:2,mins:null},{sec:'house',grp:'Living Areas',text:'Clean + dust desk',position:3,mins:null},{sec:'house',grp:'Living Areas',text:'Move + clean office rug',position:4,mins:null},{sec:'house',grp:'Living Areas',text:'Set up office recycling',position:5,mins:null},{sec:'house',grp:'Living Areas',text:'Clean + dust all surfaces',position:6,mins:null},{sec:'house',grp:'Living Areas',text:'Clean under bed/shelves',position:7,mins:null},{sec:'house',grp:'Living Areas',text:'Move + clean BeaR rug',position:8,mins:null},{sec:'house',grp:'Living Areas',text:'Mop BeaR + office floor/hall',position:9,mins:null},
+  {sec:'house',grp:'Kitchen & Bathrooms',text:'Deep clean truck stop BR',position:0,mins:null},{sec:'house',grp:'Kitchen & Bathrooms',text:'Deep clean showers + walls',position:1,mins:null},{sec:'house',grp:'Kitchen & Bathrooms',text:'Deep clean BR + mop',position:2,mins:null},{sec:'house',grp:'Kitchen & Bathrooms',text:'Deep clean kitchen (oven, microwave, fridge, sink, counters, dishwasher)',position:3,mins:null},{sec:'house',grp:'Kitchen & Bathrooms',text:'Clean dogs + crates + brush',position:4,mins:null},
+  {sec:'house',grp:'Laundry & Linens',text:'Finish clothes laundry',position:0,mins:null},{sec:'house',grp:'Laundry & Linens',text:'Finish sheets/towel laundry',position:1,mins:null},{sec:'house',grp:'Laundry & Linens',text:'Clean storage room',position:2,mins:null},
+  {sec:'house',grp:'Finishing Touches',text:'Improve towel holder',position:0,mins:null},{sec:'house',grp:'Finishing Touches',text:'Replace front light',position:1,mins:null},{sec:'house',grp:'Finishing Touches',text:'Paint kitchen ceiling',position:2,mins:null},{sec:'house',grp:'Finishing Touches',text:'Wash windows',position:3,mins:null},{sec:'house',grp:'Finishing Touches',text:'Re-org drawers + cabinets',position:4,mins:null},
+  {sec:'house',grp:'Storage & Trash',text:'Get storage bins for basement',position:0,mins:null},{sec:'house',grp:'Storage & Trash',text:'Throw away basement trash',position:1,mins:null},{sec:'house',grp:'Storage & Trash',text:'Buy outdoor trash can + indoor recycle bin',position:2,mins:null},
+  {sec:'checkout',grp:'Classroom Checkout',text:'Plants back home',position:0,mins:null},{sec:'checkout',grp:'Classroom Checkout',text:'Store shirts',position:1,mins:null},{sec:'checkout',grp:'Classroom Checkout',text:'Course perform',position:2,mins:null},{sec:'checkout',grp:'Classroom Checkout',text:'Clear walls',position:3,mins:null},{sec:'checkout',grp:'Classroom Checkout',text:'Return books + calcs',position:4,mins:null},{sec:'checkout',grp:'Classroom Checkout',text:'Re-org drawers + cabinets',position:5,mins:null},{sec:'checkout',grp:'Classroom Checkout',text:'Get poster store bag',position:6,mins:null},{sec:'checkout',grp:'Classroom Checkout',text:'Recycle all prev class papers',position:7,mins:null},{sec:'checkout',grp:'Classroom Checkout',text:'Offload NC ELD books/etc.',position:8,mins:null},{sec:'checkout',grp:'Classroom Checkout',text:'Get locus for cabinets',position:9,mins:null},
+  {sec:'checkout',grp:'Take Home',text:'Tea set',position:0,mins:null},{sec:'checkout',grp:'Take Home',text:'Monitor',position:1,mins:null},{sec:'checkout',grp:'Take Home',text:'Mice x2',position:2,mins:null},{sec:'checkout',grp:'Take Home',text:'Keyboards x2',position:3,mins:null},{sec:'checkout',grp:'Take Home',text:'Desktop',position:4,mins:null},{sec:'checkout',grp:'Take Home',text:'Cords',position:5,mins:null},{sec:'checkout',grp:'Take Home',text:'Big chair',position:6,mins:null},{sec:'checkout',grp:'Take Home',text:'Desk cover',position:7,mins:null},{sec:'checkout',grp:'Take Home',text:'Water heater',position:8,mins:null},{sec:'checkout',grp:'Take Home',text:'Extension cords',position:9,mins:null},{sec:'checkout',grp:'Take Home',text:'Chargers',position:10,mins:null},{sec:'checkout',grp:'Take Home',text:'Box comics',position:11,mins:null},{sec:'checkout',grp:'Take Home',text:'Games, A+C',position:12,mins:null},
+  {sec:'checkout',grp:'Grades',text:'Finalize grades with comments',position:0,mins:null},
+  {sec:'math',grp:'Grading',text:'Theor Prob Notes',position:0,mins:null},{sec:'math',grp:'Grading',text:'Cond Prob Notes',position:1,mins:null},{sec:'math',grp:'Grading',text:'Stats Proj Part 1',position:2,mins:null},{sec:'math',grp:'Grading',text:'Probability HW',position:3,mins:null},{sec:'math',grp:'Grading',text:'Norm Dist Notes',position:4,mins:null},{sec:'math',grp:'Grading',text:'Prop Assess Prep',position:5,mins:null},{sec:'math',grp:'Grading',text:'Stats Proj Part 2',position:6,mins:null},{sec:'math',grp:'Grading',text:'Stats Proj Part 3',position:7,mins:null},{sec:'math',grp:'Grading',text:'Enter study guide',position:8,mins:null},{sec:'math',grp:'Grading',text:'Enter proj WP points',position:9,mins:null},{sec:'math',grp:'Grading',text:'Enter exam',position:10,mins:null},
+  {sec:'math',grp:'Prep',text:'Study guide',position:0,mins:null},{sec:'math',grp:'Prep',text:'Review DN Qs (x4)',position:1,mins:null},{sec:'math',grp:'Prep',text:'Review Kahoot PDF',position:2,mins:null},{sec:'math',grp:'Prep',text:'Finalize review Kahoot',position:3,mins:null},{sec:'math',grp:'Prep',text:'Practice exam form',position:4,mins:null},{sec:'math',grp:'Prep',text:'Exam sched. slide',position:5,mins:null},{sec:'math',grp:'Prep',text:'Final due date slide',position:6,mins:null},{sec:'math',grp:'Prep',text:'Review WP points slide',position:7,mins:null},{sec:'math',grp:'Prep',text:'Announce upd. grades',position:8,mins:null},{sec:'math',grp:'Prep',text:'Email failing',position:9,mins:null},
+  {sec:'history',grp:'Grading',text:'Enter unit 7 summ (2+6)',position:0,mins:null},{sec:'history',grp:'Grading',text:'6.3/4 Study Guide (2+6)',position:1,mins:null},{sec:'history',grp:'Grading',text:'Unit 6 Study Guide (2+6)',position:2,mins:null},{sec:'history',grp:'Grading',text:'Unit 6 Tests (2+6)',position:3,mins:null},{sec:'history',grp:'Grading',text:'7.1 Notes/Summ (2+6)',position:4,mins:null},{sec:'history',grp:'Grading',text:'7.2 Notes/Summ (2+6)',position:5,mins:null},{sec:'history',grp:'Grading',text:'Enter Study Guide (2+6)',position:6,mins:null},{sec:'history',grp:'Grading',text:'Enter review activities',position:7,mins:null},{sec:'history',grp:'Grading',text:'Enter review WP points',position:8,mins:null},{sec:'history',grp:'Grading',text:'Enter exam',position:9,mins:null},
+  {sec:'history',grp:'Prep',text:'Study guide #3',position:0,mins:null},{sec:'history',grp:'Prep',text:'Review Kahoot PDF',position:1,mins:null},{sec:'history',grp:'Prep',text:'Finalize review Kahoot',position:2,mins:null},{sec:'history',grp:'Prep',text:'Exam sched. slide',position:3,mins:null},{sec:'history',grp:'Prep',text:'Final due date slide',position:4,mins:null},{sec:'history',grp:'Prep',text:'Review WP points slide',position:5,mins:null},{sec:'history',grp:'Prep',text:'Work time slide',position:6,mins:null},{sec:'history',grp:'Prep',text:'Finalize exam',position:7,mins:null},{sec:'history',grp:'Prep',text:'Digital exam to Neidy',position:8,mins:null},{sec:'history',grp:'Prep',text:'Email failing (2+6)',position:9,mins:null},
 ];
 
 let tasks = [];
-let secOrder = JSON.parse(localStorage.getItem('sec-order') || '["yard","house","checkout","math","history"]');
-let activeTab = localStorage.getItem('active-tab') || 'yard';
-let taskDragSrc = null, catDragSrc = null;
+let secOrder = JSON.parse(localStorage.getItem('sec-order')||'["yard","house","checkout","math","history"]');
+let activeTab = localStorage.getItem('active-tab')||'yard';
+let taskDragSrc=null, catDragSrc=null;
+let pickerTaskId=null;
 
-function setSyncStatus(s) {
-  document.getElementById('syncDot').className = 'sync-dot ' + s;
+// ── Time picker ───────────────────────────────────────────
+const picker = document.getElementById('timePicker');
+const TIME_OPTS = [5,10,15,20,30,45,60,90,120,180];
+const COLOR_MAP = {yard:'var(--teal)',house:'var(--purple)',checkout:'var(--pink)',math:'var(--blue)',history:'var(--red)'};
+
+function openPicker(taskId, badgeEl) {
+  pickerTaskId = taskId;
+  const task = tasks.find(t=>t.id===taskId);
+  picker.querySelectorAll('.tp-opt').forEach(b => {
+    const m = parseInt(b.dataset.mins);
+    b.classList.toggle('selected', task.mins===m);
+    b.style.background = task.mins===m ? COLOR_MAP[task.sec] : '';
+    b.style.color = task.mins===m ? 'white' : '';
+    b.style.borderColor = task.mins===m ? COLOR_MAP[task.sec] : '';
+  });
+  const rect = badgeEl.getBoundingClientRect();
+  let top = rect.bottom + 6;
+  let left = rect.left;
+  if (left + 220 > window.innerWidth) left = window.innerWidth - 230;
+  if (top + 200 > window.innerHeight) top = rect.top - 210;
+  picker.style.top = top+'px';
+  picker.style.left = left+'px';
+  picker.classList.add('open');
 }
+
+document.querySelectorAll('.tp-opt').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const mins = parseInt(btn.dataset.mins);
+    if (!pickerTaskId) return;
+    picker.classList.remove('open');
+    const t = tasks.find(x=>x.id===pickerTaskId);
+    t.mins = mins; render();
+    setSyncStatus('loading');
+    await sb.from('tasks').update({mins}).eq('id',pickerTaskId);
+    setSyncStatus('ok');
+  });
+});
+document.getElementById('tpClear').addEventListener('click', async () => {
+  if (!pickerTaskId) return;
+  picker.classList.remove('open');
+  const t = tasks.find(x=>x.id===pickerTaskId);
+  t.mins = null; render();
+  setSyncStatus('loading');
+  await sb.from('tasks').update({mins:null}).eq('id',pickerTaskId);
+  setSyncStatus('ok');
+});
+document.addEventListener('click', e => {
+  if (!picker.contains(e.target) && !e.target.classList.contains('time-badge')) {
+    picker.classList.remove('open');
+  }
+});
+
+function fmtMins(m) {
+  if (!m) return '+ time';
+  if (m < 60) return m+'m';
+  const h = Math.floor(m/60), rem = m%60;
+  return rem ? h+'h '+rem+'m' : h+'h';
+}
+function fmtHrs(totalMins) {
+  if (!totalMins) return '0';
+  const h = Math.floor(totalMins/60), m = totalMins%60;
+  return m ? `${h}h ${m}m` : `${h}h`;
+}
+
+// ── Supabase ─────────────────────────────────────────────
+function setSyncStatus(s){ document.getElementById('syncDot').className='sync-dot '+s; }
 
 async function init() {
   setSyncStatus('loading');
-  const { data, error } = await sb.from('tasks').select('*').order('position');
-  if (error) { setSyncStatus('err'); return; }
-  if (data.length === 0) {
-    setSyncStatus('loading');
+  // ensure mins column exists (safe to ignore error if already exists)
+  const {data,error} = await sb.from('tasks').select('*').order('position');
+  if(error){setSyncStatus('err');return;}
+  if(data.length===0){
     await sb.from('tasks').insert(DEFAULT_TASKS);
-    const { data: seeded } = await sb.from('tasks').select('*').order('position');
-    tasks = seeded || [];
+    const {data:s}=await sb.from('tasks').select('*').order('position');
+    tasks=s||[];
   } else {
-    tasks = data;
+    tasks=data.map(t=>({...t,mins:t.mins||null}));
   }
-  setSyncStatus('ok');
-  render();
+  setSyncStatus('ok'); render();
 }
 
-function tasksForGroup(sec, grp) { return tasks.filter(t=>t.sec===sec&&t.grp===grp).sort((a,b)=>a.position-b.position); }
-function groupsFor(sec) { return [...new Set(tasks.filter(t=>t.sec===sec).sort((a,b)=>a.position-b.position).map(t=>t.grp))]; }
-function totalAll()  { return tasks.length; }
-function doneAll()   { return tasks.filter(t=>t.done).length; }
-function totalSec(s) { return tasks.filter(t=>t.sec===s).length; }
-function doneSec(s)  { return tasks.filter(t=>t.sec===s&&t.done).length; }
+// ── Helpers ───────────────────────────────────────────────
+function tasksForGroup(sec,grp){return tasks.filter(t=>t.sec===sec&&t.grp===grp).sort((a,b)=>a.position-b.position);}
+function groupsFor(sec){return[...new Set(tasks.filter(t=>t.sec===sec).sort((a,b)=>a.position-b.position).map(t=>t.grp))];}
+function totalAll(){return tasks.length;}
+function doneAll(){return tasks.filter(t=>t.done).length;}
+function totalSec(s){return tasks.filter(t=>t.sec===s).length;}
+function doneSec(s){return tasks.filter(t=>t.sec===s&&t.done).length;}
+function remainMins(){return tasks.filter(t=>!t.done&&t.mins).reduce((s,t)=>s+t.mins,0);}
+function secRemainMins(s){return tasks.filter(t=>t.sec===s&&!t.done&&t.mins).reduce((a,t)=>a+t.mins,0);}
+function secTotalMins(s){return tasks.filter(t=>t.sec===s&&t.mins).reduce((a,t)=>a+t.mins,0);}
 
-function render() {
-  const total=totalAll(), done=doneAll();
-  const pct = total ? Math.round(done/total*100) : 0;
-  document.getElementById('globalFill').style.width = pct+'%';
-  document.getElementById('globalCount').textContent = `${done}/${total}`;
-  renderNav();
-  renderSections();
+// ── Render ────────────────────────────────────────────────
+function render(){
+  const total=totalAll(),done=doneAll(),pct=total?Math.round(done/total*100):0;
+  document.getElementById('globalFill').style.width=pct+'%';
+  document.getElementById('globalCount').textContent=`${done}/${total}`;
+  const rm=remainMins();
+  document.getElementById('timeRemain').textContent=fmtHrs(rm);
+  renderNav(); renderSections();
 }
 
-function renderNav() {
-  const nav = document.getElementById('nav');
-  // keep hint
-  nav.innerHTML = '<span class="nav-hint">↔ drag</span>';
-  secOrder.forEach(sec => {
-    const btn = document.createElement('button');
-    btn.className = 'tab-btn' + (sec===activeTab?' active':'');
-    btn.dataset.sec = sec;
-    btn.textContent = ICONS[sec]+' '+LABELS[sec];
-    btn.draggable = true;
-    // click = switch tab
-    btn.addEventListener('click', () => { activeTab=sec; localStorage.setItem('active-tab',sec); render(); });
-    // drag = reorder
-    btn.addEventListener('dragstart', e => { catDragSrc=sec; btn.classList.add('cat-dragging'); e.dataTransfer.effectAllowed='move'; });
-    btn.addEventListener('dragover', e => { e.preventDefault(); document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('cat-drag-over')); btn.classList.add('cat-drag-over'); });
-    btn.addEventListener('drop', e => {
+function renderNav(){
+  const nav=document.getElementById('nav');
+  nav.innerHTML='<span class="nav-hint">↔ drag</span>';
+  secOrder.forEach(sec=>{
+    const btn=document.createElement('button');
+    btn.className='tab-btn'+(sec===activeTab?' active':'');
+    btn.dataset.sec=sec;
+    btn.textContent=ICONS[sec]+' '+LABELS[sec];
+    btn.draggable=true;
+    btn.addEventListener('click',()=>{activeTab=sec;localStorage.setItem('active-tab',sec);render();});
+    btn.addEventListener('dragstart',e=>{catDragSrc=sec;btn.classList.add('cat-dragging');e.dataTransfer.effectAllowed='move';});
+    btn.addEventListener('dragover',e=>{e.preventDefault();document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('cat-drag-over'));btn.classList.add('cat-drag-over');});
+    btn.addEventListener('drop',e=>{
       e.preventDefault();
-      if(!catDragSrc||catDragSrc===sec) return;
-      const from=secOrder.indexOf(catDragSrc), to=secOrder.indexOf(sec);
-      secOrder.splice(from,1); secOrder.splice(to,0,catDragSrc);
+      if(!catDragSrc||catDragSrc===sec)return;
+      const from=secOrder.indexOf(catDragSrc),to=secOrder.indexOf(sec);
+      secOrder.splice(from,1);secOrder.splice(to,0,catDragSrc);
       localStorage.setItem('sec-order',JSON.stringify(secOrder));
-      catDragSrc=null; render();
+      catDragSrc=null;render();
     });
-    btn.addEventListener('dragend', () => { btn.classList.remove('cat-dragging'); document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('cat-drag-over')); catDragSrc=null; });
+    btn.addEventListener('dragend',()=>{btn.classList.remove('cat-dragging');document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('cat-drag-over'));catDragSrc=null;});
     nav.appendChild(btn);
   });
 }
 
-function renderSections() {
-  const main = document.getElementById('main');
-  main.innerHTML = '';
-  secOrder.forEach(sec => {
-    const total=totalSec(sec), done=doneSec(sec);
-    const pct = total ? Math.round(done/total*100) : 0;
-    const div = document.createElement('div');
-    div.className = 'section'+(sec===activeTab?' active':'');
-    div.id = 'sec-'+sec;
-    div.innerHTML = `
+function renderSections(){
+  const main=document.getElementById('main');
+  main.innerHTML='';
+  secOrder.forEach(sec=>{
+    const total=totalSec(sec),done=doneSec(sec),pct=total?Math.round(done/total*100):0;
+    const rm=secRemainMins(sec),tot=secTotalMins(sec);
+    const div=document.createElement('div');
+    div.className='section'+(sec===activeTab?' active':'');
+    div.id='sec-'+sec;
+    div.innerHTML=`
       <div class="sec-progress"><div class="sec-progress-fill" style="width:${pct}%"></div></div>
       <div class="section-header">
         <span class="icon">${ICONS[sec]}</span>
         <h1>${LABELS[sec]}</h1>
-        <span class="sec-count">${done}/${total} done</span>
+        <div class="sec-meta">
+          <span class="sec-count">${done}/${total} done</span>
+          ${tot?`<span class="sec-time">⏱ ${fmtHrs(rm)} left</span>`:''}
+        </div>
       </div>`;
-    groupsFor(sec).forEach(grp => {
-      const g = document.createElement('div');
-      g.className = 'group';
-      g.innerHTML = `<div class="group-label">${grp}</div>`;
-      const list = document.createElement('div');
-      list.className = 'task-list';
-      tasksForGroup(sec,grp).forEach(task => list.appendChild(makeTaskEl(task)));
-      const addRow = document.createElement('div');
-      addRow.className = 'add-row';
-      addRow.innerHTML = `<input class="add-input" placeholder="Add to ${grp}..."><button class="add-btn">+ Add</button>`;
-      const inp = addRow.querySelector('.add-input');
-      const doAdd = () => addTask(sec, grp, inp);
-      addRow.querySelector('.add-btn').onclick = doAdd;
-      inp.addEventListener('keydown', e => { if(e.key==='Enter') doAdd(); });
-      g.appendChild(list); g.appendChild(addRow);
+    groupsFor(sec).forEach(grp=>{
+      const g=document.createElement('div');
+      g.className='group';
+      g.innerHTML=`<div class="group-label">${grp}</div>`;
+      const list=document.createElement('div');
+      list.className='task-list';
+      tasksForGroup(sec,grp).forEach(task=>list.appendChild(makeTaskEl(task)));
+      const addRow=document.createElement('div');
+      addRow.className='add-row';
+      addRow.innerHTML=`<input class="add-input" placeholder="Add to ${grp}..."><button class="add-btn">+ Add</button>`;
+      const inp=addRow.querySelector('.add-input');
+      const doAdd=()=>addTask(sec,grp,inp);
+      addRow.querySelector('.add-btn').onclick=doAdd;
+      inp.addEventListener('keydown',e=>{if(e.key==='Enter')doAdd();});
+      g.appendChild(list);g.appendChild(addRow);
       div.appendChild(g);
     });
     main.appendChild(div);
   });
 }
 
-function makeTaskEl(task) {
-  const el = document.createElement('div');
-  el.className = 'task'+(task.done?' done':'');
-  el.draggable = true;
-  el.dataset.id = task.id;
-  el.innerHTML = `
+function makeTaskEl(task){
+  const el=document.createElement('div');
+  el.className='task'+(task.done?' done':'');
+  el.draggable=true;el.dataset.id=task.id;
+  el.innerHTML=`
     <span class="drag-handle">⠿</span>
     <div class="cb ${task.done?'checked':''}">
-      <svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5L4.5 8.5L11 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg width="13" height="11" viewBox="0 0 13 11" fill="none"><path d="M1 5.5L5 9.5L12 1" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
     <span class="task-label">${task.text}</span>
+    <span class="time-badge ${task.mins?'has-time':''}" data-id="${task.id}">${fmtMins(task.mins)}</span>
     <button class="task-delete" title="Delete">✕</button>`;
-  el.querySelector('.cb').onclick = () => toggleTask(task.id, !task.done);
-  el.querySelector('.task-delete').onclick = () => deleteTask(task.id);
-  el.addEventListener('dragstart', e => { taskDragSrc=task.id; el.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
-  el.addEventListener('dragover', e => { e.preventDefault(); document.querySelectorAll('.task.drag-over').forEach(x=>x.classList.remove('drag-over')); el.classList.add('drag-over'); });
-  el.addEventListener('drop', async e => {
+  el.querySelector('.cb').onclick=()=>toggleTask(task.id,!task.done);
+  el.querySelector('.task-delete').onclick=()=>deleteTask(task.id);
+  el.querySelector('.time-badge').onclick=(e)=>{e.stopPropagation();openPicker(task.id,e.currentTarget);};
+  el.addEventListener('dragstart',e=>{taskDragSrc=task.id;el.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
+  el.addEventListener('dragover',e=>{e.preventDefault();document.querySelectorAll('.task.drag-over').forEach(x=>x.classList.remove('drag-over'));el.classList.add('drag-over');});
+  el.addEventListener('drop',async e=>{
     e.preventDefault();
-    if(!taskDragSrc||taskDragSrc===task.id) return;
+    if(!taskDragSrc||taskDragSrc===task.id)return;
     const src=tasks.find(t=>t.id===taskDragSrc);
-    if(src.sec!==task.sec||src.grp!==task.grp) return;
+    if(src.sec!==task.sec||src.grp!==task.grp)return;
     const grpTasks=tasksForGroup(src.sec,src.grp);
-    const si=grpTasks.findIndex(t=>t.id===taskDragSrc), di=grpTasks.findIndex(t=>t.id===task.id);
-    grpTasks.splice(si,1); grpTasks.splice(di,0,src);
-    grpTasks.forEach((t,i)=>{ const f=tasks.find(x=>x.id===t.id); if(f) f.position=i; });
-    taskDragSrc=null; render();
+    const si=grpTasks.findIndex(t=>t.id===taskDragSrc),di=grpTasks.findIndex(t=>t.id===task.id);
+    grpTasks.splice(si,1);grpTasks.splice(di,0,src);
+    grpTasks.forEach((t,i)=>{const f=tasks.find(x=>x.id===t.id);if(f)f.position=i;});
+    taskDragSrc=null;render();
     setSyncStatus('loading');
     await Promise.all(grpTasks.map((t,i)=>sb.from('tasks').update({position:i}).eq('id',t.id)));
     setSyncStatus('ok');
   });
-  el.addEventListener('dragend', () => { el.classList.remove('dragging'); document.querySelectorAll('.task.drag-over').forEach(x=>x.classList.remove('drag-over')); taskDragSrc=null; });
+  el.addEventListener('dragend',()=>{el.classList.remove('dragging');document.querySelectorAll('.task.drag-over').forEach(x=>x.classList.remove('drag-over'));taskDragSrc=null;});
   return el;
 }
 
-async function toggleTask(id, done) {
-  tasks.find(t=>t.id===id).done=done; render();
+async function toggleTask(id,done){
+  tasks.find(t=>t.id===id).done=done;render();
   setSyncStatus('loading');
   await sb.from('tasks').update({done}).eq('id',id);
   setSyncStatus('ok');
 }
-async function deleteTask(id) {
-  tasks=tasks.filter(t=>t.id!==id); render();
+async function deleteTask(id){
+  tasks=tasks.filter(t=>t.id!==id);render();
   setSyncStatus('loading');
   await sb.from('tasks').delete().eq('id',id);
   setSyncStatus('ok');
 }
-async function addTask(sec, grp, input) {
-  const text=input.value.trim(); if(!text) return;
+async function addTask(sec,grp,input){
+  const text=input.value.trim();if(!text)return;
   const position=tasksForGroup(sec,grp).length;
   setSyncStatus('loading');
-  const {data,error}=await sb.from('tasks').insert({sec,grp,text,done:false,position}).select().single();
+  const{data,error}=await sb.from('tasks').insert({sec,grp,text,done:false,position,mins:null}).select().single();
   if(error){setSyncStatus('err');return;}
-  tasks.push(data); input.value='';
-  setSyncStatus('ok'); render();
+  tasks.push(data);input.value='';
+  setSyncStatus('ok');render();
+}
+
+// Add mins column if needed
+async function ensureMinsColumn(){
+  await sb.rpc('exec_sql',{sql:'ALTER TABLE tasks ADD COLUMN IF NOT EXISTS mins integer;'}).catch(()=>{});
 }
 
 init();
