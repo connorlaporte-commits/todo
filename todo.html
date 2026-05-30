@@ -560,59 +560,64 @@ async function runEstimate(){
   const memStr=Object.entries(mem).length?'\n\nPAST CORRECTIONS (user overrides — use these as strong signals):\n'+Object.entries(mem).map(([k,v])=>`"${k}" → ${v} mins`).join('\n'):'';
   const taskList=undone.map(t=>`ID:${t.id}|[${cats[t.sec]?.label||t.sec} > ${t.grp}] ${t.text}`).join('\n');
 
-  const prompt=`You are estimating how long end-of-year tasks will take for a high school teacher.
+  const BATCH=25;
+  const batches=[];
+  for(let i=0;i<undone.length;i+=BATCH) batches.push(undone.slice(i,i+BATCH));
+  const allEstimates={};
 
+  try{
+    for(let b=0;b<batches.length;b++){
+      const batch=batches[b];
+      const batchList=batch.map(t=>`${t.id}|${cats[t.sec]?.label||t.sec} > ${t.grp}: ${t.text}`).join('\n');
+      fill.style.width=(10+Math.round(((b+0.5)/batches.length)*80))+'%';
+      label.textContent=`Estimating batch ${b+1} of ${batches.length}...`;
+
+      const prompt=`You are estimating task durations for a high school teacher.
 USER CONTEXT: ${context}${memStr}
 
 TASKS:
-${taskList}
+${batchList}
 
-Return ONLY a JSON object. For each task ID, return an object with:
-- "mins": integer (one of: 5,10,15,20,30,45,60,90,120,180)
-- "uncertain": boolean (true if you are NOT confident in the estimate)
+Return ONLY a JSON object mapping each task ID to {"mins":N,"uncertain":bool}.
+mins must be one of: 5,10,15,20,30,45,60,90,120,180.
+uncertain=true if you lack enough context to estimate confidently.
+Quick admin=5-15min. Grading batches=15-45min. Cleaning=20-60min. Big physical tasks=60-180min.
+Return ONLY the JSON object. No markdown, no explanation.`;
 
-Mark uncertain=true when: the task is vague, highly context-dependent, or you genuinely can't estimate it well.
-Be realistic. Quick admin = 5-15 min. Grading batches = 15-45 min. Physical cleaning = 20-60 min. Large physical tasks = 60-180 min.
+      const resp=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-api-key':localStorage.getItem('ai-key')||'','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+        body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,messages:[{role:'user',content:prompt}]})
+      });
+      const data=await resp.json();
+      if(data.error){throw new Error(data.error.message);}
+      const txt=data.content[0].text.replace(/```json|```/g,'').trim();
+      Object.assign(allEstimates,JSON.parse(txt));
+    }
 
-Return ONLY the JSON, no other text. Example:
-{"id1":{"mins":15,"uncertain":false},"id2":{"mins":60,"uncertain":true}}`;
-
-  try{
-    fill.style.width='40%';label.textContent='Claude is thinking...';
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':localStorage.getItem('ai-key')||'','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',content:prompt}]})
-    });
-    fill.style.width='70%';label.textContent='Parsing estimates...';
-    const data=await resp.json();
-    const txt=data.content[0].text.replace(/```json|```/g,'').trim();
-    const estimates=JSON.parse(txt);
-    fill.style.width='90%';label.textContent='Saving...';
-
+    fill.style.width='95%';label.textContent='Saving...';
     const updates=[];let count=0,uncertainCount=0;
-    for(const[id,val]of Object.entries(estimates)){
-      const t=tasks.find(x=>x.id===id);
-      if(!t)continue;
+    for(const[id,val]of Object.entries(allEstimates)){
+      const t=tasks.find(x=>x.id===id);if(!t)continue;
       const mins=typeof val==='object'?val.mins:val;
-      const uncertain=typeof val==='object'?val.uncertain:false;
+      const uncertain=typeof val==='object'?(val.uncertain||false):false;
       t.mins=mins;t.uncertain=uncertain;count++;
       if(uncertain)uncertainCount++;
       updates.push(sb.from('tasks').update({mins,uncertain}).eq('id',id));
     }
     setSS('loading');await Promise.all(updates);setSS('ok');
     fill.style.width='100%';label.textContent=`Done! Estimated ${count} tasks.`;
-    const result=document.getElementById('aiResult');
     const totalRem=tasks.filter(t=>!t.done&&t.mins).reduce((s,t)=>s+t.mins,0);
+    const result=document.getElementById('aiResult');
     result.style.display='block';
-    result.innerHTML=`✅ <strong>${count} tasks estimated</strong> — total remaining: <strong>${fmtHrs(totalRem)}</strong><br>When you correct a ⚠️ flagged task, Claude remembers it for next time.`;
-    if(uncertainCount>0){document.getElementById('uncertainNote').style.display='block';}
+    result.innerHTML=`✅ <strong>${count} tasks estimated</strong> — total remaining: <strong>${fmtHrs(totalRem)}</strong><br>Correct any ⚠️ flagged tasks by clicking their time badge — Claude learns from your corrections.`;
+    if(uncertainCount>0)document.getElementById('uncertainNote').style.display='block';
     goBtn.textContent='✨ Re-estimate';goBtn.disabled=false;
     render();
   }catch(err){
     fill.style.width='100%';label.textContent='Error.';
     document.getElementById('aiResult').style.display='block';
-    document.getElementById('aiResult').innerHTML=`<strong>Error:</strong> ${err.message}<br>Make sure your Anthropic API key is set in the file.`;
+    document.getElementById('aiResult').innerHTML=`<strong>Error:</strong> ${err.message}<br>Check your API key with the 🔑 button.`;
     goBtn.disabled=false;goBtn.textContent='✨ Try again';setSS('err');
   }
 }
