@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>End-of-Year To-Do</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --teal:#1D9E75;--teal-bg:#E1F5EE;--teal-dark:#0F6E56;
+  --purple:#7F77DD;--purple-bg:#EEEDFE;--purple-dark:#3C3489;
+  --pink:#D4537E;--pink-bg:#FBEAF0;--pink-dark:#72243E;
+  --blue:#378ADD;--blue-bg:#E6F1FB;--blue-dark:#0C447C;
+  --red:#E24B4A;--red-bg:#FCEBEB;--red-dark:#791F1F;
+  --paper:#FDFAF4;--ink:#1E1C18;--muted:#888880;--border:#E2DDD0;--dot:#DDD8C8;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(circle,var(--dot) 1px,transparent 1px);background-size:20px 20px;}
+header{position:sticky;top:0;z-index:100;background:rgba(253,250,244,0.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.site-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;letter-spacing:-0.5px;}
+.header-right{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.global-progress{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);}
+.global-bar{width:140px;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+.global-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--teal),var(--blue));transition:width 0.4s ease;}
+.global-count{font-weight:600;color:var(--ink);}
+.sync-status{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:#ccc;transition:background 0.3s;}
+.sync-dot.ok{background:var(--teal);}
+.sync-dot.err{background:var(--red);}
+.sync-dot.loading{background:#f0a500;animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+
+.cat-reorder{position:relative;z-index:1;display:flex;gap:8px;padding:12px 24px 0;align-items:center;flex-wrap:wrap;}
+.cat-reorder-label{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:0.07em;text-transform:uppercase;margin-right:4px;}
+.cat-chips{display:flex;gap:8px;flex-wrap:wrap;}
+.cat-chip{padding:5px 14px;border-radius:20px;border:1px solid var(--border);background:white;font-size:12px;font-weight:500;cursor:grab;color:var(--ink);transition:box-shadow 0.15s;user-select:none;}
+.cat-chip:hover{box-shadow:0 2px 6px rgba(0,0,0,0.08);}
+.cat-chip.dragging{opacity:0.4;}
+.cat-chip.drag-over-chip{border-color:#999;background:#F0EDE8;}
+
+.tabs-row{position:relative;z-index:1;display:flex;gap:8px;padding:12px 24px 0;overflow-x:auto;flex-wrap:wrap;}
+.tab-btn{padding:8px 18px;border-radius:24px;border:1.5px solid var(--border);background:white;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);transition:all 0.15s;white-space:nowrap;}
+.tab-btn:hover{border-color:#bbb;color:var(--ink);}
+.tab-btn.active[data-sec="yard"]{background:var(--teal-bg);color:var(--teal-dark);border-color:var(--teal);}
+.tab-btn.active[data-sec="house"]{background:var(--purple-bg);color:var(--purple-dark);border-color:var(--purple);}
+.tab-btn.active[data-sec="checkout"]{background:var(--pink-bg);color:var(--pink-dark);border-color:var(--pink);}
+.tab-btn.active[data-sec="math"]{background:var(--blue-bg);color:var(--blue-dark);border-color:var(--blue);}
+.tab-btn.active[data-sec="history"]{background:var(--red-bg);color:var(--red-dark);border-color:var(--red);}
+
+main{position:relative;z-index:1;padding:20px 24px 60px;max-width:900px;}
+.loading-screen{text-align:center;padding:60px 24px;color:var(--muted);font-size:15px;}
+.loading-screen .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.section{display:none;}
+.section.active{display:block;}
+.section-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid;}
+.section-header .icon{font-size:24px;}
+.section-header h1{font-family:'Fraunces',serif;font-size:28px;font-weight:700;}
+.section-header .sec-count{margin-left:auto;font-size:13px;color:var(--muted);}
+.sec-progress{height:5px;border-radius:3px;background:var(--border);margin-bottom:24px;overflow:hidden;}
+.sec-progress-fill{height:100%;border-radius:3px;transition:width 0.4s ease;}
+
+#sec-yard .section-header{border-color:var(--teal);color:var(--teal-dark);}
+#sec-yard .sec-progress-fill{background:var(--teal);}
+#sec-house .section-header{border-color:var(--purple);color:var(--purple-dark);}
+#sec-house .sec-progress-fill{background:var(--purple);}
+#sec-checkout .section-header{border-color:var(--pink);color:var(--pink-dark);}
+#sec-checkout .sec-progress-fill{background:var(--pink);}
+#sec-math .section-header{border-color:var(--blue);color:var(--blue-dark);}
+#sec-math .sec-progress-fill{background:var(--blue);}
+#sec-history .section-header{border-color:var(--red);color:var(--red-dark);}
+#sec-history .sec-progress-fill{background:var(--red);}
+
+.group{margin-bottom:28px;}
+.group-label{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;padding-left:2px;}
+.task-list{display:flex;flex-direction:column;gap:5px;}
+.task{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:white;cursor:grab;transition:box-shadow 0.15s,opacity 0.15s,background 0.1s;user-select:none;}
+.task:hover{background:#FAFAF7;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.task.dragging{opacity:0.35;}
+.task.drag-over{border-style:dashed;border-color:#aaa;background:#F5F5F0;}
+.task.done .task-label{text-decoration:line-through;color:var(--muted);}
+.drag-handle{color:#CCC;font-size:18px;cursor:grab;flex-shrink:0;line-height:1;}
+.drag-handle:hover{color:#999;}
+.cb{width:20px;height:20px;border-radius:5px;border:1.5px solid;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;background:transparent;}
+.cb svg{display:none;}
+.cb.checked svg{display:block;}
+#sec-yard .cb{border-color:var(--teal);}
+#sec-yard .cb.checked{background:var(--teal);border-color:var(--teal);}
+#sec-house .cb{border-color:var(--purple);}
+#sec-house .cb.checked{background:var(--purple);border-color:var(--purple);}
+#sec-checkout .cb{border-color:var(--pink);}
+#sec-checkout .cb.checked{background:var(--pink);border-color:var(--pink);}
+#sec-math .cb{border-color:var(--blue);}
+#sec-math .cb.checked{background:var(--blue);border-color:var(--blue);}
+#sec-history .cb{border-color:var(--red);}
+#sec-history .cb.checked{background:var(--red);border-color:var(--red);}
+.task-label{font-size:15px;flex:1;line-height:1.4;}
+.task-delete{opacity:0;background:none;border:none;cursor:pointer;color:#CCC;font-size:16px;padding:2px 4px;border-radius:4px;transition:opacity 0.1s,color 0.1s;flex-shrink:0;}
+.task:hover .task-delete{opacity:1;}
+.task-delete:hover{color:#E24B4A;}
+.add-row{display:flex;gap:8px;margin-top:10px;}
+.add-input{flex:1;padding:9px 14px;border-radius:10px;border:1.5px dashed var(--border);background:white;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);outline:none;transition:border-color 0.15s;}
+.add-input:focus{border-style:solid;border-color:#aaa;}
+.add-input::placeholder{color:#BDB9B0;}
+.add-btn{padding:9px 16px;border-radius:10px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;color:white;transition:opacity 0.15s;}
+.add-btn:hover{opacity:0.85;}
+#sec-yard .add-btn{background:var(--teal);}
+#sec-house .add-btn{background:var(--purple);}
+#sec-checkout .add-btn{background:var(--pink);}
+#sec-math .add-btn{background:var(--blue);}
+#sec-history .add-btn{background:var(--red);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="site-title">📋 End-of-Year To-Do</div>
+  <div class="header-right">
+    <div class="sync-status"><div class="sync-dot loading" id="syncDot"></div><span id="syncLabel">Connecting...</span></div>
+    <div class="global-progress">
+      <div class="global-bar"><div class="global-bar-fill" id="globalFill" style="width:0%"></div></div>
+      <span class="global-count" id="globalCount">0/0 done</span>
+    </div>
+  </div>
+</header>
+
+<div class="cat-reorder">
+  <span class="cat-reorder-label">Reorder:</span>
+  <div class="cat-chips" id="catChips"></div>
+</div>
+<div class="tabs-row" id="tabsRow"></div>
+<main id="main">
+  <div class="loading-screen"><div class="spinner"></div>Loading your tasks...</div>
+</main>
+
+<script>
+const SUPABASE_URL = 'https://jfbtarzerulndyvyjaok.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmYnRhcnplcnVsbmR5dnlqYW9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxMTM2NDYsImV4cCI6MjA5NTY4OTY0Nn0.0C3hD9eNH7ERVrVDhz4p210aVrAKUhV1ecxKcepq8s4';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const ICONS  = {yard:'🌿',house:'🏠',checkout:'📦',math:'📐',history:'📖'};
+const LABELS = {yard:'Yard Work',house:'House Work',checkout:'Moving Out & Checking Out',math:'Math (3rd)',history:'History (2nd & 6th)'};
+
+const DEFAULT_TASKS = [
+  // yard
+  {sec:'yard',grp:'Garden & Plants',text:'Get plantings + seeds',position:0},
+  {sec:'yard',grp:'Garden & Plants',text:'Clear raised beds',position:1},
+  {sec:'yard',grp:'Garden & Plants',text:'Plant weed',position:2},
+  {sec:'yard',grp:'Garden & Plants',text:'Weed around enclosure',position:3},
+  {sec:'yard',grp:'Garden & Plants',text:'Chop/dispose down tree',position:4},
+  {sec:'yard',grp:'Garden & Plants',text:'Trim Willow bush',position:5},
+  {sec:'yard',grp:'Garden & Plants',text:'Plant sunflowers',position:6},
+  {sec:'yard',grp:'Garden & Plants',text:'Get tomato cage + pot',position:7},
+  {sec:'yard',grp:'Garden & Plants',text:'Get pepper, flower seeds',position:8},
+  {sec:'yard',grp:'Garden & Plants',text:'Trim side of deck plants',position:9},
+  {sec:'yard',grp:'Garden & Plants',text:'Buy + install lights',position:10},
+  {sec:'yard',grp:'Garden & Plants',text:'Buy bonus patio table/chairs',position:11},
+  {sec:'yard',grp:'Maintenance',text:'Fix hose situation',position:0},
+  {sec:'yard',grp:'Maintenance',text:'Weed around smoke bush',position:1},
+  {sec:'yard',grp:'Maintenance',text:'Weed garden by door',position:2},
+  {sec:'yard',grp:'Maintenance',text:'Weed garden front of drive',position:3},
+  {sec:'yard',grp:'Maintenance',text:'Weed living room garden',position:4},
+  {sec:'yard',grp:'Maintenance',text:'Get outdoor plant shelf',position:5},
+  {sec:'yard',grp:'Maintenance',text:'Get pooper scooper',position:6},
+  {sec:'yard',grp:'Maintenance',text:'Rake/sweep area by cans',position:7},
+  {sec:'yard',grp:'Maintenance',text:'Driveway repair kit',position:8},
+  {sec:'yard',grp:'Lawn & Outdoor',text:'Weedwack front + back',position:0},
+  {sec:'yard',grp:'Lawn & Outdoor',text:'Mow + rake front + back',position:1},
+  {sec:'yard',grp:'Lawn & Outdoor',text:'Fire wood + seating',position:2},
+  // house
+  {sec:'house',grp:'Living Areas',text:'Vacuum/clean LV carpets',position:0},
+  {sec:'house',grp:'Living Areas',text:'Mop LV floor + under couch',position:1},
+  {sec:'house',grp:'Living Areas',text:'Clean couch covers',position:2},
+  {sec:'house',grp:'Living Areas',text:'Clean + dust desk',position:3},
+  {sec:'house',grp:'Living Areas',text:'Move + clean office rug',position:4},
+  {sec:'house',grp:'Living Areas',text:'Set up office recycling',position:5},
+  {sec:'house',grp:'Living Areas',text:'Clean + dust all surfaces',position:6},
+  {sec:'house',grp:'Living Areas',text:'Clean under bed/shelves',position:7},
+  {sec:'house',grp:'Living Areas',text:'Move + clean BeaR rug',position:8},
+  {sec:'house',grp:'Living Areas',text:'Mop BeaR + office floor/hall',position:9},
+  {sec:'house',grp:'Kitchen & Bathrooms',text:'Deep clean truck stop BR',position:0},
+  {sec:'house',grp:'Kitchen & Bathrooms',text:'Deep clean showers + walls',position:1},
+  {sec:'house',grp:'Kitchen & Bathrooms',text:'Deep clean BR + mop',position:2},
+  {sec:'house',grp:'Kitchen & Bathrooms',text:'Deep clean kitchen (oven, microwave, fridge, sink, counters, dishwasher)',position:3},
+  {sec:'house',grp:'Kitchen & Bathrooms',text:'Clean dogs + crates + brush',position:4},
+  {sec:'house',grp:'Laundry & Linens',text:'Finish clothes laundry',position:0},
+  {sec:'house',grp:'Laundry & Linens',text:'Finish sheets/towel laundry',position:1},
+  {sec:'house',grp:'Laundry & Linens',text:'Clean storage room',position:2},
+  {sec:'house',grp:'Finishing Touches',text:'Improve towel holder',position:0},
+  {sec:'house',grp:'Finishing Touches',text:'Replace front light',position:1},
+  {sec:'house',grp:'Finishing Touches',text:'Paint kitchen ceiling',position:2},
+  {sec:'house',grp:'Finishing Touches',text:'Wash windows',position:3},
+  {sec:'house',grp:'Finishing Touches',text:'Re-org drawers + cabinets',position:4},
+  {sec:'house',grp:'Storage & Trash',text:'Get storage bins for basement',position:0},
+  {sec:'house',grp:'Storage & Trash',text:'Throw away basement trash',position:1},
+  {sec:'house',grp:'Storage & Trash',text:'Buy outdoor trash can + indoor recycle bin',position:2},
+  // checkout
+  {sec:'checkout',grp:'Classroom Checkout',text:'Plants back home',position:0},
+  {sec:'checkout',grp:'Classroom Checkout',text:'Store shirts',position:1},
+  {sec:'checkout',grp:'Classroom Checkout',text:'Course perform',position:2},
+  {sec:'checkout',grp:'Classroom Checkout',text:'Clear walls',position:3},
+  {sec:'checkout',grp:'Classroom Checkout',text:'Return books + calcs',position:4},
+  {sec:'checkout',grp:'Classroom Checkout',text:'Re-org drawers + cabinets',position:5},
+  {sec:'checkout',grp:'Classroom Checkout',text:'Get poster store bag',position:6},
+  {sec:'checkout',grp:'Classroom Checkout',text:'Recycle all prev class papers',position:7},
+  {sec:'checkout',grp:'Classroom Checkout',text:'Offload NC ELD books/etc.',position:8},
+  {sec:'checkout',grp:'Classroom Checkout',text:'Get locus for cabinets',position:9},
+  {sec:'checkout',grp:'Take Home',text:'Tea set',position:0},
+  {sec:'checkout',grp:'Take Home',text:'Monitor',position:1},
+  {sec:'checkout',grp:'Take Home',text:'Mice x2',position:2},
+  {sec:'checkout',grp:'Take Home',text:'Keyboards x2',position:3},
+  {sec:'checkout',grp:'Take Home',text:'Desktop',position:4},
+  {sec:'checkout',grp:'Take Home',text:'Cords',position:5},
+  {sec:'checkout',grp:'Take Home',text:'Big chair',position:6},
+  {sec:'checkout',grp:'Take Home',text:'Desk cover',position:7},
+  {sec:'checkout',grp:'Take Home',text:'Water heater',position:8},
+  {sec:'checkout',grp:'Take Home',text:'Extension cords',position:9},
+  {sec:'checkout',grp:'Take Home',text:'Chargers',position:10},
+  {sec:'checkout',grp:'Take Home',text:'Box comics',position:11},
+  {sec:'checkout',grp:'Take Home',text:'Games, A+C',position:12},
+  {sec:'checkout',grp:'Grades',text:'Finalize grades with comments',position:0},
+  // math
+  {sec:'math',grp:'Grading',text:'Theor Prob Notes',position:0},
+  {sec:'math',grp:'Grading',text:'Cond Prob Notes',position:1},
+  {sec:'math',grp:'Grading',text:'Stats Proj Part 1',position:2},
+  {sec:'math',grp:'Grading',text:'Probability HW',position:3},
+  {sec:'math',grp:'Grading',text:'Norm Dist Notes',position:4},
+  {sec:'math',grp:'Grading',text:'Prop Assess Prep',position:5},
+  {sec:'math',grp:'Grading',text:'Stats Proj Part 2',position:6},
+  {sec:'math',grp:'Grading',text:'Stats Proj Part 3',position:7},
+  {sec:'math',grp:'Grading',text:'Enter study guide',position:8},
+  {sec:'math',grp:'Grading',text:'Enter proj WP points',position:9},
+  {sec:'math',grp:'Grading',text:'Enter exam',position:10},
+  {sec:'math',grp:'Prep',text:'Study guide',position:0},
+  {sec:'math',grp:'Prep',text:'Review DN Qs (x4)',position:1},
+  {sec:'math',grp:'Prep',text:'Review Kahoot PDF',position:2},
+  {sec:'math',grp:'Prep',text:'Finalize review Kahoot',position:3},
+  {sec:'math',grp:'Prep',text:'Practice exam form',position:4},
+  {sec:'math',grp:'Prep',text:'Exam sched. slide',position:5},
+  {sec:'math',grp:'Prep',text:'Final due date slide',position:6},
+  {sec:'math',grp:'Prep',text:'Review WP points slide',position:7},
+  {sec:'math',grp:'Prep',text:'Announce upd. grades',position:8},
+  {sec:'math',grp:'Prep',text:'Email failing',position:9},
+  // history
+  {sec:'history',grp:'Grading',text:'Enter unit 7 summ (2+6)',position:0},
+  {sec:'history',grp:'Grading',text:'6.3/4 Study Guide (2+6)',position:1},
+  {sec:'history',grp:'Grading',text:'Unit 6 Study Guide (2+6)',position:2},
+  {sec:'history',grp:'Grading',text:'Unit 6 Tests (2+6)',position:3},
+  {sec:'history',grp:'Grading',text:'7.1 Notes/Summ (2+6)',position:4},
+  {sec:'history',grp:'Grading',text:'7.2 Notes/Summ (2+6)',position:5},
+  {sec:'history',grp:'Grading',text:'Enter Study Guide (2+6)',position:6},
+  {sec:'history',grp:'Grading',text:'Enter review activities',position:7},
+  {sec:'history',grp:'Grading',text:'Enter review WP points',position:8},
+  {sec:'history',grp:'Grading',text:'Enter exam',position:9},
+  {sec:'history',grp:'Prep',text:'Study guide #3',position:0},
+  {sec:'history',grp:'Prep',text:'Review Kahoot PDF',position:1},
+  {sec:'history',grp:'Prep',text:'Finalize review Kahoot',position:2},
+  {sec:'history',grp:'Prep',text:'Exam sched. slide',position:3},
+  {sec:'history',grp:'Prep',text:'Final due date slide',position:4},
+  {sec:'history',grp:'Prep',text:'Review WP points slide',position:5},
+  {sec:'history',grp:'Prep',text:'Work time slide',position:6},
+  {sec:'history',grp:'Prep',text:'Finalize exam',position:7},
+  {sec:'history',grp:'Prep',text:'Digital exam to Neidy',position:8},
+  {sec:'history',grp:'Prep',text:'Email failing (2+6)',position:9},
+];
+
+// ── State ────────────────────────────────────────────────
+let tasks = [];   // array of task objects from supabase
+let secOrder = JSON.parse(localStorage.getItem('sec-order') || '["yard","house","checkout","math","history"]');
+let activeTab = localStorage.getItem('active-tab') || 'yard';
+let taskDragSrc = null, catDragSrc = null;
+
+function setSyncStatus(state, label) {
+  const dot = document.getElementById('syncDot');
+  const lbl = document.getElementById('syncLabel');
+  dot.className = 'sync-dot ' + state;
+  lbl.textContent = label;
+}
+
+// ── Init ─────────────────────────────────────────────────
+async function init() {
+  setSyncStatus('loading', 'Connecting...');
+  const { data, error } = await sb.from('tasks').select('*').order('position');
+  if (error) { setSyncStatus('err', 'Error loading'); console.error(error); return; }
+
+  if (data.length === 0) {
+    // Seed the database
+    setSyncStatus('loading', 'Setting up...');
+    const { error: insertErr } = await sb.from('tasks').insert(DEFAULT_TASKS);
+    if (insertErr) { setSyncStatus('err', 'Seed failed'); console.error(insertErr); return; }
+    const { data: seeded } = await sb.from('tasks').select('*').order('position');
+    tasks = seeded || [];
+  } else {
+    tasks = data;
+  }
+
+  setSyncStatus('ok', 'Synced');
+  render();
+}
+
+// ── Helpers ──────────────────────────────────────────────
+function tasksFor(sec) { return tasks.filter(t => t.sec === sec).sort((a,b) => a.position - b.position); }
+function tasksForGroup(sec, grp) { return tasks.filter(t => t.sec === sec && t.grp === grp).sort((a,b) => a.position - b.position); }
+function groupsFor(sec) { return [...new Set(tasksFor(sec).map(t => t.grp))]; }
+function totalAll()  { return tasks.length; }
+function doneAll()   { return tasks.filter(t => t.done).length; }
+function totalSec(sec) { return tasksFor(sec).length; }
+function doneSec(sec)  { return tasksFor(sec).filter(t => t.done).length; }
+
+// ── Render ───────────────────────────────────────────────
+function render() {
+  renderHeader(); renderCatChips(); renderTabs(); renderSections();
+}
+
+function renderHeader() {
+  const total = totalAll(), done = doneAll();
+  const pct = total ? Math.round(done/total*100) : 0;
+  document.getElementById('globalFill').style.width = pct + '%';
+  document.getElementById('globalCount').textContent = `${done}/${total} done`;
+}
+
+function renderCatChips() {
+  const el = document.getElementById('catChips');
+  el.innerHTML = '';
+  secOrder.forEach(sec => {
+    const chip = document.createElement('div');
+    chip.className = 'cat-chip'; chip.textContent = ICONS[sec] + ' ' + LABELS[sec];
+    chip.draggable = true; chip.dataset.sec = sec;
+    chip.addEventListener('dragstart', e => { catDragSrc = sec; chip.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
+    chip.addEventListener('dragover', e => { e.preventDefault(); document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('drag-over-chip')); chip.classList.add('drag-over-chip'); });
+    chip.addEventListener('drop', e => {
+      e.preventDefault();
+      if (!catDragSrc || catDragSrc === sec) return;
+      const from = secOrder.indexOf(catDragSrc), to = secOrder.indexOf(sec);
+      secOrder.splice(from,1); secOrder.splice(to,0,catDragSrc);
+      localStorage.setItem('sec-order', JSON.stringify(secOrder));
+      catDragSrc = null; render();
+    });
+    chip.addEventListener('dragend', () => { chip.classList.remove('dragging'); document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('drag-over-chip')); catDragSrc = null; });
+    el.appendChild(chip);
+  });
+}
+
+function renderTabs() {
+  const row = document.getElementById('tabsRow');
+  row.innerHTML = '';
+  secOrder.forEach(sec => {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (sec === activeTab ? ' active' : '');
+    btn.dataset.sec = sec;
+    btn.textContent = ICONS[sec] + ' ' + LABELS[sec];
+    btn.onclick = () => { activeTab = sec; localStorage.setItem('active-tab', sec); render(); };
+    row.appendChild(btn);
+  });
+}
+
+function renderSections() {
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  secOrder.forEach(sec => {
+    const total = totalSec(sec), done = doneSec(sec);
+    const pct = total ? Math.round(done/total*100) : 0;
+    const div = document.createElement('div');
+    div.className = 'section' + (sec === activeTab ? ' active' : '');
+    div.id = 'sec-' + sec;
+    div.innerHTML = `
+      <div class="sec-progress"><div class="sec-progress-fill" style="width:${pct}%"></div></div>
+      <div class="section-header">
+        <span class="icon">${ICONS[sec]}</span>
+        <h1>${LABELS[sec]}</h1>
+        <span class="sec-count">${done}/${total} done</span>
+      </div>`;
+
+    groupsFor(sec).forEach(grp => {
+      const groupEl = document.createElement('div');
+      groupEl.className = 'group';
+      groupEl.innerHTML = `<div class="group-label">${grp}</div>`;
+      const list = document.createElement('div');
+      list.className = 'task-list';
+      list.dataset.sec = sec; list.dataset.grp = grp;
+      tasksForGroup(sec, grp).forEach(task => list.appendChild(makeTaskEl(task)));
+
+      const addRow = document.createElement('div');
+      addRow.className = 'add-row';
+      addRow.innerHTML = `<input class="add-input" placeholder="Add a task to ${grp}..."><button class="add-btn">+ Add</button>`;
+      const inp = addRow.querySelector('.add-input');
+      const doAdd = () => addTask(sec, grp, inp);
+      addRow.querySelector('.add-btn').onclick = doAdd;
+      inp.addEventListener('keydown', e => { if (e.key === 'Enter') doAdd(); });
+
+      groupEl.appendChild(list); groupEl.appendChild(addRow);
+      div.appendChild(groupEl);
+    });
+    main.appendChild(div);
+  });
+}
+
+function makeTaskEl(task) {
+  const el = document.createElement('div');
+  el.className = 'task' + (task.done ? ' done' : '');
+  el.draggable = true;
+  el.dataset.id = task.id;
+  el.innerHTML = `
+    <span class="drag-handle">⠿</span>
+    <div class="cb ${task.done ? 'checked' : ''}">
+      <svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <span class="task-label">${task.text}</span>
+    <button class="task-delete" title="Delete">✕</button>`;
+
+  el.querySelector('.cb').onclick = () => toggleTask(task.id, !task.done);
+  el.querySelector('.task-delete').onclick = () => deleteTask(task.id);
+
+  el.addEventListener('dragstart', e => { taskDragSrc = task.id; el.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
+  el.addEventListener('dragover', e => { e.preventDefault(); document.querySelectorAll('.task.drag-over').forEach(x=>x.classList.remove('drag-over')); el.classList.add('drag-over'); });
+  el.addEventListener('drop', async e => {
+    e.preventDefault();
+    if (!taskDragSrc || taskDragSrc === task.id) return;
+    const srcTask = tasks.find(t => t.id === taskDragSrc);
+    const dstTask = task;
+    if (srcTask.sec !== dstTask.sec || srcTask.grp !== dstTask.grp) return;
+    // Reorder locally
+    const grpTasks = tasksForGroup(srcTask.sec, srcTask.grp);
+    const srcIdx = grpTasks.findIndex(t => t.id === taskDragSrc);
+    const dstIdx = grpTasks.findIndex(t => t.id === dstTask.id);
+    grpTasks.splice(srcIdx, 1); grpTasks.splice(dstIdx, 0, srcTask);
+    grpTasks.forEach((t, i) => { const found = tasks.find(x => x.id === t.id); if (found) found.position = i; });
+    taskDragSrc = null; render();
+    // Persist positions
+    setSyncStatus('loading', 'Saving...');
+    await Promise.all(grpTasks.map((t, i) => sb.from('tasks').update({position: i}).eq('id', t.id)));
+    setSyncStatus('ok', 'Synced');
+  });
+  el.addEventListener('dragend', () => { el.classList.remove('dragging'); document.querySelectorAll('.task.drag-over').forEach(x=>x.classList.remove('drag-over')); taskDragSrc = null; });
+  return el;
+}
+
+async function toggleTask(id, done) {
+  tasks.find(t => t.id === id).done = done;
+  render();
+  setSyncStatus('loading', 'Saving...');
+  await sb.from('tasks').update({done}).eq('id', id);
+  setSyncStatus('ok', 'Synced');
+}
+
+async function deleteTask(id) {
+  tasks = tasks.filter(t => t.id !== id);
+  render();
+  setSyncStatus('loading', 'Saving...');
+  await sb.from('tasks').delete().eq('id', id);
+  setSyncStatus('ok', 'Synced');
+}
+
+async function addTask(sec, grp, input) {
+  const text = input.value.trim();
+  if (!text) return;
+  const grpTasks = tasksForGroup(sec, grp);
+  const position = grpTasks.length;
+  setSyncStatus('loading', 'Saving...');
+  const { data, error } = await sb.from('tasks').insert({sec, grp, text, done: false, position}).select().single();
+  if (error) { setSyncStatus('err', 'Save failed'); return; }
+  tasks.push(data);
+  input.value = '';
+  setSyncStatus('ok', 'Synced');
+  render();
+}
+
+init();
+</script>
+</body>
+</html>
